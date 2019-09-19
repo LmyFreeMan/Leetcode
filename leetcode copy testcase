@@ -1,42 +1,56 @@
-// ==UserScript==l
+// ==UserScript==
 // @name         leetcode copy testcase
 // @namespace   https://leetcode-cn.com/
-// @version      0.1
-// @description  leetcode测试用例自动生成插入语句
+// @version      0.11
+// @description  leetcode自动将测试用例转化为sql语句
 // @author       LiMingYu
 // @match      https://leetcode-cn.com/submissions/detail/*
 // @grant        none
 // ==/UserScript==
 //获取表的对象集合信息
+var creattable="";
+var sql=""
 var tableinfos=JSON.parse(pageData.submissionData.input).headers
 //得到插入的行信息
 var tablerows=JSON.parse(pageData.submissionData.input).rows
-
-//拼接sql语句
-var sql="";
 //获得表名,字段名
 for(var name in tableinfos){
-       var col=new Array();
     //得到列头
-    for(var i=0;i<tableinfos[name].length;i++)
-    {
-        col.push(tableinfos[name][i])
-        var field=col.join(",");
-    }
-    //得到每一行的记录
-    for(var j=0;j<tablerows[name].length;j++)
-    {
-         var value=new Array();
-        value.push(tablerows[name][j])
-        var val_detail=value.join(",");
-        //拼接sql
-        sql+='INSERT INTO'+' '+name+'('+field+')'+ ' VALUES ('+val_detail+')'+'\n';
-      
-    }
+         var list=new Array();
+      for(var k=0;k<tableinfos[name].length;k++)
+      {
+
+           list.push(tableinfos[name][k]+" varchar(200)")
+      }
+
+      creattable+='CREATE TABLE IF NOT EXISTS '+name+'('+list.join(",")+')'+';\n';
 }
+//处理数据
+
+      for(var row in tablerows)
+     {
+
+        for(var i=0;i<tablerows[row].length;i++)
+         {
+              for(var j=0;j<tablerows[row][i].length;j++)
+              {
+                   if(tablerows[row][i][j]==null)
+                       tablerows[row][i][j]="-"
+                  tablerows[row][i][j]='"'+tablerows[row][i][j]+'"'
+              }
+
+        }
+           console.log(tablerows[row].length)
+         for(var m=0;m<tablerows[row].length;m++)
+         {
+             var str=tablerows[row][m].toString();
+              sql+='INSERT INTO'+' '+row+ ' VALUES ('+str.replace(new RegExp("\\-","g"),"null")+')'+';\n';
+         }
+    }
+
 //添加到页面上
-$("#details-summary").append('<input type="button" value="复制" id="copy" class="btn btn-primary" ><input type="button" value="隐藏" id="watch" style="margin-left:10px" class="btn btn-primary" > <textarea style="margin-top:10px;display:block" id="sql" value="" " class="form-control"></textarea>')
-$("#sql").val(sql)
+$("#details-summary").append('<input type="button" value="复制" id="copy" class="btn btn-primary" ><input type="button" value="隐藏" id="watch" style="margin-left:10px" class="btn btn-primary" > <textarea style="margin-top:10px;height:200px;display:block" id="sql" value="" " class="form-control"></textarea>')
+$("#sql").val(creattable+sql)
 //添加滑动及其处理
 $("#watch").click(
  function(){
@@ -62,9 +76,6 @@ $("#copy").click(
  }
 
 )
-
-
-
 
 
 
