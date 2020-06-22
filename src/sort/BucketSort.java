@@ -1,8 +1,6 @@
 package sort;
-
 import java.util.ArrayList;
 import java.util.Collections;
-
 public class BucketSort {
     public static void bucketSort(int[] arr) {
         int max = Integer.MIN_VALUE;
@@ -28,7 +26,6 @@ public class BucketSort {
         }
         System.out.println(bucketArr.toString());
     }
-
     public static void main(String[] args) {
         int[] arr = new int[]{9012, 19702, 39867, 68957, 83556, 102456};
         bucketSort(arr);
